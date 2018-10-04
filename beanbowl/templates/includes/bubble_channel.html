@@ -1,0 +1,18 @@
+<script>
+
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var ws_path = ws_scheme + '://' + window.location.host + "/bubbletracker/{{ group.pk }}";
+    var socket = new ReconnectingWebSocket(ws_path);
+
+
+    socket.onmessage = function (event) {
+        var obj = jQuery.parseJSON(event.data);
+        console.log(obj);
+        g20 = obj['updated_bubbleset'];
+        bubbles.restart(g20, "hosting-control", selected, tooltip);
+
+    };
+
+
+</script>
+

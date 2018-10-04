@@ -1,0 +1,64 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Bowl page
+{% endblock %}
+
+{% block content %}
+    <div id="hosting-control"></div>
+    {% next_button %}
+
+{% endblock %}
+{% block styles %}
+    <style>
+    #hosting-control {
+        min-height: 300px;
+    }
+    </style>
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.4/p5.min.js"></script>
+    <script src="{% static 'beanbowl/bubbles.p5.js' %}"></script>
+    {% include 'includes/bubble_channel.html' %}
+
+    <script>
+
+        var g20 = {{ group.bubbleset|safe }};
+
+        data = g20;
+        title = "countries by gdp";
+        info = "https://www.google.co.uk/maps/place/";
+        tip = function (bubble) {
+            return bubble.name + " has a GDP of $" + bubble.count.toLocaleString('en') + ",000,000,000";
+        };
+
+        document.title += title;
+
+        function selected(key, bubble)  // a bubble has been double-clicked
+        {
+            console.log(key);
+            delete g20[key];
+            console.log(g20);
+            bubbles.restart(g20,"hosting-control", selected, tooltip);
+            var msg = {'bubbleset':g20};
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+                ;
+
+{#            window.open(info + key, "_new");#}
+        }
+
+        function tooltip(key, bubble)  // return the tooltip text, null or empty string for none
+        {
+            return tip(bubble);
+        }
+
+        var bubbles = new Bubbles(data, "hosting-control", selected, tooltip);
+
+    </script>
+
+{% endblock %}
